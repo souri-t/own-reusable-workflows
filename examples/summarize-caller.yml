@@ -1,0 +1,23 @@
+# このファイルを呼び出し元リポジトリの .github/workflows/summarize.yml にコピーして使用してください。
+#
+# 必要なシークレット:
+#   - OPENROUTER_API_KEY: リポジトリの Settings > Secrets and variables > Actions > Secrets で設定
+
+name: コミット要約の自動生成
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  summarize:
+    uses: {YOUR_GITHUB_USERNAME}/own-workflows/.github/workflows/summarize.yml@main
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    # 以下は省略可能（カスタマイズしたい場合に指定）
+    # with:
+    #   model: "anthropic/claude-3-haiku"
+    #   base_url: "https://openrouter.ai/api/v1"
+    #   summary_dir: ".github/summaries"
