@@ -21,7 +21,7 @@ on:
     secrets:
       OPENROUTER_API_KEY:
         description: "OpenRouter の API キー"
-        required: true
+        required: false
 
 jobs:
   summarize:
