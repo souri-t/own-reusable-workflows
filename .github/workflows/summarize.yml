@@ -44,6 +44,17 @@ jobs:
       - name: 依存パッケージのインストール
         run: pip install openai
 
+      - name: シークレット受信確認
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "❌ OPENROUTER_API_KEY が空です。シークレットが正しく設定されているか確認してください。"
+            exit 1
+          else
+            echo "✅ OPENROUTER_API_KEY を受信しました（先頭8文字: ${OPENROUTER_API_KEY:0:8}...）"
+          fi
+
       - name: 要約スクリプトの実行
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -82,9 +93,17 @@ jobs:
               return f"### 変更統計\n{stat}\n### 差分詳細\n{diff}"
 
           def summarize_with_llm(log, diff):
+              api_key = os.environ["OPENROUTER_API_KEY"]
+              if not api_key:
+                  raise ValueError("OPENROUTER_API_KEY が空です")
+              print(f"API キー確認: {api_key[:8]}...")
               client = OpenAI(
-                  api_key=os.environ["OPENROUTER_API_KEY"],
+                  api_key=api_key,
                   base_url=os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
+                  default_headers={
+                      "HTTP-Referer": "https://github.com/souri-t/own-reusable-workflows",
+                      "X-Title": "Git Commit Summarizer",
+                  },
               )
               model = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o-mini")
               prompt = f"""以下の Git コミット履歴と差分を分析し、日本語で変更内容の要約を Markdown 形式で作成してください。
